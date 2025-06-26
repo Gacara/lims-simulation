@@ -4,12 +4,15 @@ import { OrbitControls, Environment, Grid } from '@react-three/drei';
 import { Laboratory } from './Laboratory';
 import { useGameStore } from '../../stores/gameStore';
 
-// Loading fallback for 3D components
+// Loading fallback for 3D components - must be 3D objects, not HTML
 function SceneLoading() {
   return (
-    <div className="flex items-center justify-center w-full h-full bg-gray-100">
-      <div className="text-lg font-medium text-gray-600">Loading Laboratory...</div>
-    </div>
+    <group>
+      <mesh>
+        <boxGeometry args={[0.5, 0.5, 0.5]} />
+        <meshStandardMaterial color="#d1d5db" />
+      </mesh>
+    </group>
   );
 }
 
