@@ -1,4 +1,3 @@
-import React from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 
@@ -26,7 +25,7 @@ export function NotificationPanel() {
   };
 
   return (
-    <div className="absolute top-20 right-4 w-80 max-h-96 overflow-y-auto space-y-2 z-40 pointer-events-auto">
+    <div className="absolute top-32 right-4 w-80 max-h-96 overflow-y-auto space-y-2 z-40 pointer-events-auto">
       {unreadNotifications.map((notification) => (
         <div
           key={notification.id}

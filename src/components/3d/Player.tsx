@@ -10,7 +10,7 @@ interface PlayerProps {
 export function Player({ position = [0, 0.5, 0] }: PlayerProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const { controls } = useControlsStore();
-  const { player, updatePlayerPosition, updatePlayerRotation, setPlayerMoving } = useGameStore();
+  const { updatePlayerPosition, updatePlayerRotation, setPlayerMoving } = useGameStore();
   
   const velocity = useRef(new THREE.Vector3());
   const direction = useRef(new THREE.Vector3());

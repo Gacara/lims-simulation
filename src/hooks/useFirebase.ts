@@ -8,13 +8,43 @@ import {
   getDocs, 
   getDoc, 
   query, 
-  where, 
-  orderBy, 
   onSnapshot,
-  Timestamp 
+  Timestamp,
+  QueryConstraint
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { testFirebaseConnection, getFirebaseInfo } from '../utils/firebaseTest';
 import type { User, Laboratory, Sample, Mission, Analysis } from '../types';
+
+// Hook to test Firebase connection status
+export function useFirebaseConnection() {
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [projectInfo, setProjectInfo] = useState<{ projectId?: string; authDomain?: string; storageBucket?: string } | null>(null);
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const testConnection = async () => {
+      try {
+        const connected = await testFirebaseConnection();
+        setIsConnected(connected);
+        
+        if (connected) {
+          const info = getFirebaseInfo();
+          setProjectInfo(info);
+          console.log('🔥 Firebase project info:', info);
+        }
+      } catch (error) {
+        setIsConnected(false);
+        setConnectionError(error instanceof Error ? error.message : 'Unknown error');
+        console.error('🔥 Firebase connection failed:', error);
+      }
+    };
+
+    testConnection();
+  }, []);
+
+  return { isConnected, projectInfo, connectionError };
+}
 
 // Generic Firestore hook for CRUD operations
 export function useFirestore<T>(collectionName: string) {
@@ -70,7 +100,7 @@ export function useFirestore<T>(collectionName: string) {
     }
   };
 
-  const getAll = async (constraints?: any[]) => {
+  const getAll = async (constraints?: QueryConstraint[]) => {
     try {
       setLoading(true);
       const q = constraints 
@@ -95,7 +125,7 @@ export function useFirestore<T>(collectionName: string) {
   };
 
   // Subscribe to real-time updates
-  const subscribe = (constraints?: any[]) => {
+  const subscribe = (constraints?: QueryConstraint[]) => {
     const q = constraints 
       ? query(collection(db, collectionName), ...constraints)
       : collection(db, collectionName);

@@ -60,7 +60,7 @@ const initialUIState: UIState = {
 };
 
 export const useGameStore = create<GameStore>()(
-  subscribeWithSelector((set, get) => ({
+  subscribeWithSelector((set) => ({
     // Initial state
     player: initialPlayer,
     currentLaboratory: null,

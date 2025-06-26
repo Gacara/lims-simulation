@@ -1,4 +1,3 @@
-import React from 'react';
 import { Player } from './Player';
 import { LabEquipment } from './LabEquipment';
 import type { Laboratory as LabType } from '../../types';
@@ -12,7 +11,7 @@ export function Laboratory({ laboratory }: LaboratoryProps) {
     <group>
       {/* Laboratory floor */}
       <mesh receiveShadow position={[0, -0.1, 0]}>
-        <boxGeometry args={[20, 0.2, 20]} />
+        <boxGeometry args={[laboratory.layout.width || 20, 0.2, laboratory.layout.height || 20]} />
         <meshStandardMaterial color="#e5e7eb" />
       </mesh>
 

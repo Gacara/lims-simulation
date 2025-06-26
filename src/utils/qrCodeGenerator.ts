@@ -157,4 +157,3 @@ export const sampleQRUtils = {
     return qrData.sampleId;
   }
 };
-</btml:utils>

@@ -1,11 +1,9 @@
-import React from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { 
   Beaker, 
   Package, 
   Target, 
-  QrCode, 
-  Settings 
+  QrCode
 } from 'lucide-react';
 
 export function HUD() {

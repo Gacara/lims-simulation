@@ -89,7 +89,7 @@ export interface AnalyticalCapability {
 export type MatrixType = 'solid' | 'liquid' | 'gas' | 'biological' | 'environmental';
 
 export interface EquipmentConfig {
-  [key: string]: any;
+  [key: string]: unknown;
   // Equipment-specific configuration parameters
   temperature?: number;
   pressure?: number;
@@ -134,7 +134,7 @@ export interface PreparationStep {
   name: string;
   description: string;
   equipmentRequired: string[];
-  parameters: { [key: string]: any };
+  parameters: { [key: string]: unknown };
   completedAt?: Date;
   completedBy?: string;
 }
@@ -165,7 +165,7 @@ export interface AnalyticalMethod {
 }
 
 export interface AnalysisParameters {
-  [key: string]: any;
+  [key: string]: unknown;
   runTime?: number;
   temperature?: number;
   injectionVolume?: number;
@@ -242,7 +242,7 @@ export interface InventoryItem {
   type: 'sample' | 'reagent' | 'consumable' | 'tool';
   name: string;
   quantity: number;
-  properties: { [key: string]: any };
+  properties: { [key: string]: unknown };
 }
 
 export interface UIState {

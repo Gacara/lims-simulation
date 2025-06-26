@@ -44,7 +44,7 @@ export function Scene() {
         shadows
         gl={{ preserveDrawingBuffer: true }}
       >
-        <Suspense fallback={null}>
+        <Suspense fallback={<SceneLoading />}>
           {/* Lighting setup */}
           <ambientLight intensity={0.3} />
           <directionalLight

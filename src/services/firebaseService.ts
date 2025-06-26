@@ -3,7 +3,6 @@ import {
   doc, 
   addDoc, 
   updateDoc, 
-  deleteDoc, 
   getDoc, 
   getDocs,
   query,
@@ -13,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../config/firebase';
-import { QRCodeGenerator, sampleQRUtils } from '../utils/qrCodeGenerator';
+import { sampleQRUtils } from '../utils/qrCodeGenerator';
 import type { User, Laboratory, Sample, Mission, Analysis, Equipment } from '../types';
 
 /**
