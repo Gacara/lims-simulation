@@ -7,6 +7,7 @@ export function QRScanner() {
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [manualInput, setManualInput] = useState('');
 
   useEffect(() => {
     startScanning();
@@ -19,17 +20,26 @@ export function QRScanner() {
   const startScanning = async () => {
     try {
       setError(null);
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'environment' } 
-      });
+      
+      // Configuration optimisée pour mobile et desktop
+      const constraints = {
+        video: {
+          facingMode: 'environment', // Caméra arrière sur mobile
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.setAttribute('playsinline', 'true'); // Important pour iOS
         setIsScanning(true);
       }
     } catch (err) {
-      setError('Unable to access camera. Please check permissions.');
-      console.error('Camera access error:', err);
+      console.error('Erreur d\'accès caméra:', err);
+      setError('Impossible d\'accéder à la caméra. Vérifiez les permissions.');
     }
   };
 
@@ -43,15 +53,31 @@ export function QRScanner() {
   };
 
   const handleScanResult = (result: string) => {
-    // TODO: Implement QR code validation logic
+    if (!result.trim()) return;
+    
     addNotification({
       type: 'success',
-      title: 'QR Code Scanned',
-      message: `Scanned code: ${result}`,
+      title: 'Code QR Scanné',
+      message: `Code scanné: ${result}`,
     });
     
-    // Close scanner after successful scan
+    // Fermer le scanner après un scan réussi
     toggleQRScanner();
+  };
+
+  const handleManualSubmit = () => {
+    if (manualInput.trim()) {
+      handleScanResult(manualInput.trim());
+    }
+  };
+
+  // Simulation de scan pour test (clic sur la vidéo)
+  const handleVideoClick = () => {
+    if (isScanning) {
+      // Pour les tests - générer un ID d'échantillon factice
+      const testSampleId = `SAMPLE-${Date.now().toString().slice(-6)}`;
+      handleScanResult(testSampleId);
+    }
   };
 
   return (
@@ -62,7 +88,7 @@ export function QRScanner() {
           <div className="flex items-center gap-2">
             <Camera className="text-blue-600" size={24} />
             <h2 className="text-xl font-semibold text-gray-800">
-              QR Code Scanner
+              Scanner QR
             </h2>
           </div>
           <button
@@ -79,7 +105,7 @@ export function QRScanner() {
             <div className="text-center py-8">
               <AlertCircle size={48} className="mx-auto text-red-500 mb-4" />
               <h3 className="text-lg font-medium text-gray-800 mb-2">
-                Camera Error
+                Erreur Caméra
               </h3>
               <p className="text-gray-600 mb-4">
                 {error}
@@ -88,7 +114,7 @@ export function QRScanner() {
                 onClick={startScanning}
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
-                Try Again
+                Réessayer
               </button>
             </div>
           ) : (
@@ -99,7 +125,9 @@ export function QRScanner() {
                   ref={videoRef}
                   autoPlay
                   playsInline
-                  className="w-full h-full object-cover"
+                  muted
+                  className="w-full h-full object-cover cursor-pointer"
+                  onClick={handleVideoClick}
                 />
                 
                 {/* Scanning overlay */}
@@ -114,34 +142,45 @@ export function QRScanner() {
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-white text-center">
                       <Camera size={48} className="mx-auto mb-2 opacity-50" />
-                      <p className="text-sm opacity-75">Starting camera...</p>
+                      <p className="text-sm opacity-75">Démarrage caméra...</p>
                     </div>
+                  </div>
+                )}
+
+                {/* Instructions pour test */}
+                {isScanning && (
+                  <div className="absolute bottom-2 left-2 right-2 bg-black/70 text-white text-xs p-2 rounded">
+                    📱 Cliquez sur la vidéo pour simuler un scan (test)
                   </div>
                 )}
               </div>
 
               <div className="text-center">
                 <p className="text-gray-600 text-sm">
-                  Position the QR code within the frame to scan
+                  Positionnez le code QR dans le cadre pour le scanner
                 </p>
               </div>
 
               {/* Manual input fallback */}
               <div className="border-t border-gray-200 pt-4">
                 <div className="text-sm text-gray-600 mb-2">
-                  Or enter sample ID manually:
+                  Ou saisissez l'ID d'échantillon manuellement :
                 </div>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Sample ID"
+                    placeholder="ID Échantillon"
+                    value={manualInput}
+                    onChange={(e) => setManualInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleManualSubmit()}
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                   <button
-                    onClick={() => handleScanResult('manual-input')}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    onClick={handleManualSubmit}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                    disabled={!manualInput.trim()}
                   >
-                    Submit
+                    Valider
                   </button>
                 </div>
               </div>

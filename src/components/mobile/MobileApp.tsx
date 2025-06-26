@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { QrCode, User, LogOut, Settings, Camera, CheckCircle } from 'lucide-react';
-import { MobileQRScanner } from './MobileQRScanner';
+import { QRScanner } from '../ui/QRScanner';
+import { useGameStore } from '../../stores/gameStore';
 
 type MobileView = 'menu' | 'scanner' | 'profile' | 'settings';
 
 export function MobileApp() {
   const [currentView, setCurrentView] = useState<MobileView>('menu');
   const { user, logout } = useAuth();
+  const { ui, toggleQRScanner } = useGameStore();
 
   const handleLogout = async () => {
     await logout();
@@ -16,7 +18,9 @@ export function MobileApp() {
   const renderView = () => {
     switch (currentView) {
       case 'scanner':
-        return <MobileQRScanner onBack={() => setCurrentView('menu')} />;
+        toggleQRScanner();
+        setCurrentView('menu');
+        return <MenuView onNavigate={setCurrentView} />;
       case 'profile':
         return <ProfileView onBack={() => setCurrentView('menu')} />;
       case 'settings':
@@ -28,6 +32,9 @@ export function MobileApp() {
 
   return (
     <div className="min-h-screen bg-elegant-gradient">
+      {/* QR Scanner overlay - utilise le même composant que la version PC */}
+      {ui.showQRScanner && <QRScanner />}
+      
       {/* Header */}
       <header className="bg-sand-50/95 backdrop-blur-sm shadow-sm border-b border-sand-200">
         <div className="px-4 py-4 flex items-center justify-between">
