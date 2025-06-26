@@ -41,7 +41,7 @@ export function Scene() {
     <div className="w-full h-full">
       <Canvas
         camera={{
-          position: [0, 8, -8],
+          position: [0, 15, 25],
           fov: 60,
         }}
         shadows
