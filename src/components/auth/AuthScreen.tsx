@@ -32,32 +32,32 @@ export function AuthScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-elegant-gradient flex items-center justify-center p-4">
       {/* Background animation */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full animate-pulse"></div>
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-l from-purple-400/20 to-pink-400/20 rounded-full animate-pulse delay-1000"></div>
+        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-r from-cream-200/30 to-sand-300/30 rounded-full animate-pulse"></div>
+        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-l from-latte-200/30 to-cream-200/30 rounded-full animate-pulse delay-1000"></div>
       </div>
 
       <div className="relative w-full max-w-md">
         {/* Logo and Title */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-4">
-            <Beaker size={32} className="text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-latte-800/20 backdrop-blur-sm rounded-2xl mb-4 shadow-lg">
+            <Beaker size={32} className="text-latte-800" />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">3D Lab Manager</h1>
-          <p className="text-white/70">Système de gestion de laboratoire</p>
+          <h1 className="text-3xl font-bold text-latte-900 mb-2">3D Lab Manager</h1>
+          <p className="text-latte-700">Système de gestion de laboratoire</p>
         </div>
 
         {/* Auth Form */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-          <div className="flex rounded-lg bg-white/10 p-1 mb-6">
+        <div className="bg-sand-50/90 backdrop-blur-md rounded-2xl p-8 border border-sand-200/50 shadow-2xl">
+          <div className="flex rounded-lg bg-sand-100/80 p-1 mb-6">
             <button
               onClick={() => setIsLogin(true)}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all ${
                 isLogin
-                  ? 'bg-white text-gray-900'
-                  : 'text-white hover:bg-white/10'
+                  ? 'bg-latte-700 text-sand-50 shadow-md'
+                  : 'text-latte-800 hover:bg-sand-200/50'
               }`}
             >
               Connexion
@@ -66,8 +66,8 @@ export function AuthScreen() {
               onClick={() => setIsLogin(false)}
               className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-all ${
                 !isLogin
-                  ? 'bg-white text-gray-900'
-                  : 'text-white hover:bg-white/10'
+                  ? 'bg-latte-700 text-sand-50 shadow-md'
+                  : 'text-latte-800 hover:bg-sand-200/50'
               }`}
             >
               Inscription
@@ -77,17 +77,17 @@ export function AuthScreen() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
+              <label className="block text-sm font-medium text-latte-800 mb-2">
                 Email
               </label>
               <div className="relative">
-                <Mail size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" />
+                <Mail size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-latte-600" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 bg-sand-50/80 border border-sand-300 rounded-lg text-latte-900 placeholder-latte-500 focus:outline-none focus:ring-2 focus:ring-latte-500 focus:border-transparent transition-all"
                   placeholder="votre.email@exemple.com"
                 />
               </div>
@@ -95,23 +95,23 @@ export function AuthScreen() {
 
             {/* Password */}
             <div>
-              <label className="block text-sm font-medium text-white mb-2">
+              <label className="block text-sm font-medium text-latte-800 mb-2">
                 Mot de passe
               </label>
               <div className="relative">
-                <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/60" />
+                <Lock size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-latte-600" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent"
+                  className="w-full pl-10 pr-12 py-3 bg-sand-50/80 border border-sand-300 rounded-lg text-latte-900 placeholder-latte-500 focus:outline-none focus:ring-2 focus:ring-latte-500 focus:border-transparent transition-all"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-latte-600 hover:text-latte-800 transition-colors"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -120,7 +120,7 @@ export function AuthScreen() {
 
             {/* Error Message */}
             {error && (
-              <div className="p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+              <div className="p-3 bg-red-50/80 border border-red-200 rounded-lg text-red-700 text-sm">
                 {error}
               </div>
             )}
@@ -129,7 +129,7 @@ export function AuthScreen() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-white text-gray-900 font-medium rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full py-3 px-4 bg-latte-700 text-sand-50 font-medium rounded-lg hover:bg-latte-800 focus:outline-none focus:ring-2 focus:ring-latte-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
             >
               {loading ? 'Chargement...' : isLogin ? 'Se connecter' : "S'inscrire"}
             </button>
@@ -137,16 +137,16 @@ export function AuthScreen() {
 
           {/* Divider */}
           <div className="flex items-center my-6">
-            <div className="flex-1 h-px bg-white/20"></div>
-            <span className="px-4 text-white/60 text-sm">ou</span>
-            <div className="flex-1 h-px bg-white/20"></div>
+            <div className="flex-1 h-px bg-sand-300"></div>
+            <span className="px-4 text-latte-600 text-sm">ou</span>
+            <div className="flex-1 h-px bg-sand-300"></div>
           </div>
 
           {/* Google Sign In */}
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full py-3 px-4 bg-white/10 border border-white/20 text-white font-medium rounded-lg hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 bg-sand-100/80 border border-sand-300 text-latte-800 font-medium rounded-lg hover:bg-sand-200/80 focus:outline-none focus:ring-2 focus:ring-latte-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-md"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -159,7 +159,7 @@ export function AuthScreen() {
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-8 text-white/60 text-sm">
+        <div className="text-center mt-8 text-latte-600 text-sm">
           <p>Interface sécurisée • Données chiffrées</p>
         </div>
       </div>

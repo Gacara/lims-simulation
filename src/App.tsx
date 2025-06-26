@@ -27,10 +27,10 @@ function App() {
   // Show loading screen while checking authentication
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-          <p>Chargement...</p>
+      <div className="min-h-screen bg-elegant-gradient flex items-center justify-center">
+        <div className="text-latte-800 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-latte-600 mx-auto mb-4"></div>
+          <p className="font-medium">Chargement...</p>
         </div>
       </div>
     );
@@ -90,15 +90,15 @@ function DesktopApp({
   }, [isConnected, projectInfo, connectionError, addNotification]);
 
   return (
-    <div className="w-screen h-screen bg-gray-900 relative overflow-hidden">
+    <div className="w-screen h-screen bg-luxury-gradient relative overflow-hidden">
       {/* Firebase Status Indicator */}
       <div className="absolute top-20 right-4 z-40">
-        <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+        <div className={`px-3 py-1 rounded-full text-xs font-medium shadow-lg ${
           isConnected === true 
-            ? 'bg-green-100 text-green-800' 
+            ? 'bg-cream-100 text-cream-800 border border-cream-200' 
             : isConnected === false 
-            ? 'bg-red-100 text-red-800'
-            : 'bg-yellow-100 text-yellow-800'
+            ? 'bg-red-50 text-red-700 border border-red-200'
+            : 'bg-sand-100 text-sand-800 border border-sand-200'
         }`}>
           {isConnected === true ? '🔥 Firebase Connected' : 
            isConnected === false ? '❌ Firebase Disconnected' : 

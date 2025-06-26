@@ -29,7 +29,7 @@ export function NotificationPanel() {
       {unreadNotifications.map((notification) => (
         <div
           key={notification.id}
-          className="bg-white rounded-lg shadow-lg border border-gray-200 p-4 animate-slide-in-right"
+          className="bg-sand-50 rounded-lg shadow-lg border border-sand-200 p-4 animate-slide-in-right"
         >
           <div className="flex items-start gap-3">
             {getNotificationIcon(notification.type)}
@@ -46,7 +46,7 @@ export function NotificationPanel() {
             </div>
             <button
               onClick={() => markNotificationRead(notification.id)}
-              className="p-1 hover:bg-gray-100 rounded-full transition-colors flex-shrink-0"
+              className="p-1 hover:bg-sand-200 rounded-full transition-colors flex-shrink-0 text-latte-600 hover:text-latte-800"
             >
               <X size={16} />
             </button>

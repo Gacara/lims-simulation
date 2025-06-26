@@ -1,3 +1,82 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Styles personnalisés pour la charte graphique beige élégante */
+@layer components {
+  .glass-effect {
+    @apply backdrop-blur-md bg-sand-50/80 border border-sand-200/50;
+  }
+  
+  .elegant-shadow {
+    box-shadow: 0 10px 25px -5px rgba(92, 84, 69, 0.1), 0 8px 10px -6px rgba(92, 84, 69, 0.1);
+  }
+  
+  .warm-shadow {
+    box-shadow: 0 4px 14px 0 rgba(92, 84, 69, 0.15);
+  }
+  
+  .luxury-text-shadow {
+    text-shadow: 0 1px 2px rgba(92, 84, 69, 0.1);
+  }
+  
+  /* Animation pour l'entrée des notifications */
+  @keyframes slide-in-right {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  .animate-slide-in-right {
+    animation: slide-in-right 0.3s ease-out;
+  }
+  
+  /* Styles pour les boutons élégants */
+  .elegant-button {
+    @apply bg-latte-700 text-sand-50 px-4 py-2 rounded-lg font-medium shadow-lg hover:bg-latte-800 hover:shadow-xl transition-all duration-200 transform hover:-translate-y-0.5;
+  }
+  
+  .elegant-button-secondary {
+    @apply bg-sand-100 text-latte-800 px-4 py-2 rounded-lg font-medium border border-sand-300 hover:bg-sand-200 hover:border-sand-400 transition-all duration-200;
+  }
+  
+  /* Style pour les inputs élégants */
+  .elegant-input {
+    @apply bg-sand-50/80 border border-sand-300 rounded-lg px-4 py-3 text-latte-900 placeholder-latte-500 focus:outline-none focus:ring-2 focus:ring-latte-500 focus:border-transparent transition-all duration-200;
+  }
+}
+
+/* Variables CSS personnalisées pour les dégradés */
+:root {
+  --elegant-gradient: linear-gradient(135deg, #f8f6f0 0%, #e6ddd0 50%, #d6c7b3 100%);
+  --warm-gradient: linear-gradient(135deg, #fdf9f3 0%, #f5ebcf 50%, #e5cc8f 100%);
+  --luxury-gradient: linear-gradient(135deg, #faf9f7 0%, #d7c9b8 50%, #b5977a 100%);
+}
+
+/* Styles pour le corps de la page */
+body {
+  @apply font-sans antialiased;
+  background: var(--elegant-gradient);
+}
+
+/* Amélioration des scrollbars pour correspondre au thème */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-sand-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-latte-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-latte-500;
+}
