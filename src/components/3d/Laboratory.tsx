@@ -11,34 +11,40 @@ export function Laboratory({ laboratory }: LaboratoryProps) {
     <group>
       {/* Laboratory floor */}
       <mesh receiveShadow position={[0, -0.1, 0]}>
-        <boxGeometry args={[laboratory.layout.width || 20, 0.2, laboratory.layout.height || 20]} />
+        <boxGeometry args={[laboratory.layout.width || 40, 0.2, laboratory.layout.height || 40]} />
         <meshStandardMaterial color="#e5e7eb" />
       </mesh>
 
       {/* Laboratory walls */}
       <group>
         {/* Back wall */}
-        <mesh position={[0, 2.5, 10]}>
-          <boxGeometry args={[20, 5, 0.2]} />
+        <mesh position={[0, 10, 20]}>
+          <boxGeometry args={[40, 20, 0.2]} />
+          <meshStandardMaterial color="#f3f4f6" />
+        </mesh>
+        
+        {/* Front wall */}
+        <mesh position={[0, 10, -20]}>
+          <boxGeometry args={[40, 20, 0.2]} />
           <meshStandardMaterial color="#f3f4f6" />
         </mesh>
         
         {/* Left wall */}
-        <mesh position={[-10, 2.5, 0]}>
-          <boxGeometry args={[0.2, 5, 20]} />
+        <mesh position={[-20, 10, 0]}>
+          <boxGeometry args={[0.2, 20, 40]} />
           <meshStandardMaterial color="#f3f4f6" />
         </mesh>
         
         {/* Right wall */}
-        <mesh position={[10, 2.5, 0]}>
-          <boxGeometry args={[0.2, 5, 20]} />
+        <mesh position={[20, 10, 0]}>
+          <boxGeometry args={[0.2, 20, 40]} />
           <meshStandardMaterial color="#f3f4f6" />
         </mesh>
       </group>
 
       {/* Ceiling */}
-      <mesh position={[0, 5.1, 0]}>
-        <boxGeometry args={[20, 0.2, 20]} />
+      <mesh position={[0, 20.1, 0]}>
+        <boxGeometry args={[40, 0.2, 40]} />
         <meshStandardMaterial color="#f9fafb" />
       </mesh>
 

@@ -26,8 +26,8 @@ export function Scene() {
     name: 'Main Laboratory',
     level: 1,
     layout: {
-      width: 20,
-      height: 20,
+      width: 40,
+      height: 40,
       objects: []
     },
     equipment: [],
@@ -41,8 +41,8 @@ export function Scene() {
     <div className="w-full h-full">
       <Canvas
         camera={{
-          position: [10, 10, 10],
-          fov: 50,
+          position: [0, 8, -8],
+          fov: 60,
         }}
         shadows
         gl={{ preserveDrawingBuffer: true }}
@@ -51,16 +51,16 @@ export function Scene() {
           {/* Lighting setup */}
           <ambientLight intensity={0.3} />
           <directionalLight
-            position={[10, 10, 5]}
+            position={[15, 15, 10]}
             intensity={1}
             castShadow
             shadow-mapSize-width={2048}
             shadow-mapSize-height={2048}
-            shadow-camera-far={50}
-            shadow-camera-left={-20}
-            shadow-camera-right={20}
-            shadow-camera-top={20}
-            shadow-camera-bottom={-20}
+            shadow-camera-far={80}
+            shadow-camera-left={-40}
+            shadow-camera-right={40}
+            shadow-camera-top={40}
+            shadow-camera-bottom={-40}
           />
           
           {/* Laboratory environment */}
@@ -68,14 +68,14 @@ export function Scene() {
           
           {/* Grid helper */}
           <Grid 
-            args={[20, 20]} 
-            cellSize={1} 
+            args={[40, 40]} 
+            cellSize={2} 
             cellThickness={0.5}
             cellColor="#d1d5db"
-            sectionSize={5}
+            sectionSize={10}
             sectionThickness={1}
             sectionColor="#9ca3af"
-            fadeDistance={25}
+            fadeDistance={50}
             fadeStrength={1}
             followCamera={false}
             infiniteGrid
@@ -89,9 +89,10 @@ export function Scene() {
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={5}
-            maxDistance={25}
-            maxPolarAngle={Math.PI / 2}
+            minDistance={8}
+            maxDistance={50}
+            maxPolarAngle={Math.PI / 2.2}
+            target={[0, 0, 0]}
           />
         </Suspense>
       </Canvas>
