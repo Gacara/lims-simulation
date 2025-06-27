@@ -34,15 +34,7 @@ function App() {
   const [showLaboratorySelector, setShowLaboratorySelector] = React.useState(true);
 
   // Debug logs
-  console.log('=== APP RENDER DEBUG ===');
-  console.log('showLaboratorySelector:', showLaboratorySelector);
-  console.log('currentLaboratory:', currentLaboratory);
-  console.log('userProfile:', userProfile);
-  console.log('user:', user);
-  console.log('authLoading:', authLoading);
-  console.log('userLoading:', userLoading);
-  console.log('isMobile:', isMobile);
-  console.log('========================');
+  console.log('App render - showLaboratorySelector:', showLaboratorySelector, 'currentLaboratory:', !!currentLaboratory);
 
   // Handle laboratory selection
   const handleLaboratorySelected = async (laboratory: Laboratory) => {

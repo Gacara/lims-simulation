@@ -238,15 +238,53 @@ export class UserService {
   }
   
   /**
-   * Mettre à jour le laboratoire actuel de l'utilisateur
+   * Définir le laboratoire actuel pour un utilisateur
    */
   static async setCurrentLaboratory(userId: string, laboratoryId: string): Promise<void> {
     try {
-      await this.updateUserProfile(userId, { 
-        currentLaboratoryId: laboratoryId 
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, {
+        currentLaboratoryId: laboratoryId,
+        updatedAt: serverTimestamp()
       });
     } catch (error) {
       console.error('Error setting current laboratory:', error);
+      throw error;
+    }
+  }
+  
+  /**
+   * Récupérer le laboratoire actuel de l'utilisateur
+   */
+  static async getCurrentLaboratory(userId: string): Promise<Laboratory | null> {
+    try {
+      // Récupérer le profil utilisateur pour obtenir l'ID du laboratoire actuel
+      const userProfile = await this.getUserProfile(userId);
+      if (!userProfile || !userProfile.currentLaboratoryId) {
+        return null;
+      }
+
+      // Récupérer le laboratoire depuis la collection laboratories
+      const labRef = doc(db, 'laboratories', userProfile.currentLaboratoryId);
+      const labSnap = await getDoc(labRef);
+      
+      if (labSnap.exists()) {
+        const labData = labSnap.data();
+        return {
+          id: labSnap.id,
+          ...labData,
+          createdAt: labData.createdAt.toDate(),
+          updatedAt: labData.updatedAt.toDate(),
+          members: labData.members.map((member: { joinedAt: { toDate: () => Date } }) => ({
+            ...member,
+            joinedAt: member.joinedAt.toDate()
+          }))
+        } as Laboratory;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error getting current laboratory:', error);
       throw error;
     }
   }

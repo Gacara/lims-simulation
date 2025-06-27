@@ -11,13 +11,129 @@ import {
   Building2,
   UserPlus,
   Shield,
-  Play
+  Camera
 } from 'lucide-react';
 import type { Laboratory } from '../../types';
 
 interface LaboratorySelectorProps {
   onLaboratorySelected: (laboratory: Laboratory) => void;
   currentLaboratory?: Laboratory | null;
+}
+
+// Composant pour l'image de prévisualisation du laboratoire
+interface LaboratoryPreviewImageProps {
+  laboratory: Laboratory;
+  className?: string;
+}
+
+function LaboratoryPreviewImage({ laboratory, className = '' }: LaboratoryPreviewImageProps) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    // Chercher une image sauvegardée pour ce laboratoire
+    const savedImage = localStorage.getItem(`lab-preview-${laboratory.id}`);
+    if (savedImage) {
+      setImageUrl(savedImage);
+    } else {
+      // Générer une image placeholder basée sur les caractéristiques du laboratoire
+      generatePlaceholderImage();
+    }
+  }, [laboratory.id]);
+
+  const generatePlaceholderImage = () => {
+    // Créer un canvas pour générer une image de placeholder
+    const canvas = document.createElement('canvas');
+    canvas.width = 400;
+    canvas.height = 300;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // Gradient de fond basé sur le niveau du laboratoire
+      const gradient = ctx.createLinearGradient(0, 0, 400, 300);
+      const hue = (laboratory.level * 30) % 360;
+      gradient.addColorStop(0, `hsl(${hue}, 30%, 85%)`);
+      gradient.addColorStop(1, `hsl(${hue + 20}, 25%, 75%)`);
+      
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, 400, 300);
+      
+      // Dessiner des équipements représentés par des rectangles
+      ctx.fillStyle = `hsl(${hue}, 40%, 60%)`;
+      laboratory.equipment.forEach((_, index) => {
+        const x = (index % 3) * 120 + 40;
+        const y = Math.floor(index / 3) * 80 + 80;
+        ctx.fillRect(x, y, 80, 60);
+        ctx.fillStyle = `hsl(${hue}, 20%, 90%)`;
+        ctx.fillRect(x + 10, y + 10, 60, 40);
+        ctx.fillStyle = `hsl(${hue}, 40%, 60%)`;
+      });
+      
+      // Texte du niveau
+      ctx.fillStyle = `hsl(${hue}, 60%, 40%)`;
+      ctx.font = 'bold 24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`Niveau ${laboratory.level}`, 200, 40);
+      
+      // Texte du nombre d'équipements
+      ctx.font = '16px sans-serif';
+      ctx.fillText(`${laboratory.equipment.length} équipements`, 200, 270);
+      
+      const imageUrl = canvas.toDataURL('image/png');
+      setImageUrl(imageUrl);
+      
+      // Sauvegarder l'image dans localStorage
+      localStorage.setItem(`lab-preview-${laboratory.id}`, imageUrl);
+    }
+  };
+
+  const captureFromCanvas = () => {
+    setIsGenerating(true);
+    
+    // Dans un vrai projet, on capturerait le canvas 3D ici
+    // Pour l'instant, on génère juste une nouvelle image
+    setTimeout(() => {
+      generatePlaceholderImage();
+      setIsGenerating(false);
+    }, 1000);
+  };
+
+  return (
+    <div className={`relative group ${className}`}>
+      {imageUrl ? (
+        <img 
+          src={imageUrl} 
+          alt={`Aperçu du laboratoire ${laboratory.name}`}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-latte-100 to-sand-200">
+          <div className="text-center">
+            <Building2 size={48} className="mx-auto text-latte-400 mb-2" />
+            <p className="text-latte-600 text-sm font-medium">Laboratoire {laboratory.level}</p>
+            <p className="text-latte-500 text-xs">{laboratory.equipment.length} équipements</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Bouton pour regénérer l'image */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          captureFromCanvas();
+        }}
+        className="absolute bottom-2 right-2 p-2 bg-black/50 text-white rounded-lg hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
+        title="Regénérer l'aperçu"
+        disabled={isGenerating}
+      >
+        {isGenerating ? (
+          <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" />
+        ) : (
+          <Camera size={16} />
+        )}
+      </button>
+    </div>
+  );
 }
 
 export function LaboratorySelector({ onLaboratorySelected, currentLaboratory }: LaboratorySelectorProps) {
@@ -48,10 +164,17 @@ export function LaboratorySelector({ onLaboratorySelected, currentLaboratory }: 
     if (!userProfile) return;
     
     try {
+      console.log('=== LOADING USER LABORATORIES ===');
+      console.log('userProfile.id:', userProfile.id);
+      console.log('userProfile.memberLaboratories:', userProfile.memberLaboratories);
+      
       setLoading(true);
       const labs = await LaboratoryService.getUserLaboratories(userProfile.id);
+      console.log('Laboratories loaded:', labs);
+      console.log('Number of laboratories:', labs.length);
       setLaboratories(labs);
     } catch (err) {
+      console.error('Error loading laboratories:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors du chargement');
     } finally {
       setLoading(false);
@@ -162,19 +285,6 @@ export function LaboratorySelector({ onLaboratorySelected, currentLaboratory }: 
           </div>
         )}
 
-        {/* Continue with current lab button */}
-        {currentLaboratory && (
-          <div className="p-6 border-b border-sand-200 bg-latte-50">
-            <button
-              onClick={() => onLaboratorySelected(currentLaboratory)}
-              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-latte-700 text-sand-50 rounded-lg hover:bg-latte-800 font-medium text-lg transition-colors"
-            >
-              <Play size={24} />
-              Continuer avec {currentLaboratory.name}
-            </button>
-          </div>
-        )}
-
         {/* Action Buttons */}
         <div className="p-6 border-b border-sand-200">
           <div className="flex gap-3">
@@ -196,7 +306,7 @@ export function LaboratorySelector({ onLaboratorySelected, currentLaboratory }: 
         </div>
 
         {/* Laboratories List */}
-        <div className="p-6 max-h-96 overflow-y-auto">
+        <div className="p-6 max-h-[60vh] overflow-y-auto">
           {laboratories.length === 0 ? (
             <div className="text-center py-12">
               <Building2 size={48} className="mx-auto text-latte-400 mb-4" />
@@ -209,45 +319,56 @@ export function LaboratorySelector({ onLaboratorySelected, currentLaboratory }: 
             </div>
           ) : (
             <div className="space-y-2">
-              <h3 className="text-lg font-medium text-latte-800 mb-4">
+              <h3 className="text-lg font-medium text-latte-800 mb-6">
                 Vos Laboratoires ({laboratories.length})
               </h3>
-              <div className="grid gap-4">
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
                 {laboratories.map((lab) => {
                   const userMember = lab.members.find(m => m.userId === userProfile?.id);
                   const isCurrentLab = currentLaboratory?.id === lab.id;
                   return (
                     <div
                       key={lab.id}
-                      className={`bg-sand-100/50 rounded-lg p-4 border transition-all cursor-pointer hover:shadow-md ${
+                      className={`group relative bg-white rounded-xl shadow-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer hover:shadow-xl transform hover:-translate-y-1 ${
                         isCurrentLab 
-                          ? 'border-latte-400 ring-2 ring-latte-200 bg-latte-50' 
-                          : 'border-sand-200 hover:border-latte-300'
+                          ? 'border-latte-400 ring-4 ring-latte-200 bg-latte-50' 
+                          : 'border-transparent hover:border-latte-300'
                       }`}
                       onClick={() => onLaboratorySelected(lab)}
                     >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h3 className="font-semibold text-latte-800">{lab.name}</h3>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(userMember?.role || 'member')}`}>
-                              {userMember?.role === 'owner' ? 'Propriétaire' : 
-                               userMember?.role === 'admin' ? 'Admin' : 'Membre'}
-                            </span>
+                      {/* Image de prévisualisation du laboratoire */}
+                      <div className="relative h-32 bg-gradient-to-br from-latte-100 to-sand-200 overflow-hidden">
+                        <LaboratoryPreviewImage laboratory={lab} className="w-full h-full object-cover" />
+                        
+                        {/* Badge de statut en haut à droite */}
+                        {isCurrentLab && (
+                          <div className="absolute top-2 right-2 bg-latte-700 text-white px-2 py-1 rounded-full text-xs font-medium">
+                            Actuel
                           </div>
-                          <p className="text-latte-600 text-sm mb-3">{lab.description}</p>
-                          <div className="flex items-center gap-4 text-sm text-latte-600">
-                            <div className="flex items-center gap-1">
-                              <Users size={16} />
-                              <span>{lab.members.length} membre{lab.members.length > 1 ? 's' : ''}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Shield size={16} />
-                              <span>Niveau {lab.level}</span>
-                            </div>
-                          </div>
+                        )}
+                        
+                        {/* Badge de rôle en haut à gauche */}
+                        <div className={`absolute top-2 left-2 px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(userMember?.role || 'member')}`}>
+                          {userMember?.role === 'owner' ? '👑 Propriétaire' : 
+                           userMember?.role === 'admin' ? '⚡ Admin' : '👤 Membre'}
                         </div>
-                        <div className="flex items-center gap-2">
+                      </div>
+                      
+                      {/* Contenu de la carte */}
+                      <div className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-latte-800 mb-1 group-hover:text-latte-900">
+                              {lab.name}
+                            </h3>
+                            <p className="text-latte-600 text-sm leading-relaxed mb-3 overflow-hidden" style={{
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical'
+                            }}>
+                              {lab.description || 'Aucune description disponible'}
+                            </p>
+                          </div>
                           {(userMember?.role === 'owner' || userMember?.permissions.canManageMembers) && (
                             <button
                               onClick={(e) => {
@@ -255,12 +376,45 @@ export function LaboratorySelector({ onLaboratorySelected, currentLaboratory }: 
                                 setSelectedLab(lab);
                                 setShowInviteModal(true);
                               }}
-                              className="p-2 text-latte-600 hover:text-latte-800 hover:bg-sand-200/50 rounded-lg transition-colors"
+                              className="p-2 text-latte-600 hover:text-latte-800 hover:bg-sand-100 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
                               title="Gérer les invitations"
                             >
                               <Settings size={16} />
                             </button>
                           )}
+                        </div>
+                        
+                        {/* Statistiques du laboratoire */}
+                        <div className="grid grid-cols-2 gap-3 mb-3">
+                          <div className="bg-sand-50 rounded-lg p-2 text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                              <Users size={14} className="text-latte-600" />
+                              <span className="text-latte-800 font-semibold text-sm">{lab.members.length}</span>
+                            </div>
+                            <p className="text-latte-600 text-xs">Membre{lab.members.length > 1 ? 's' : ''}</p>
+                          </div>
+                          <div className="bg-sand-50 rounded-lg p-2 text-center">
+                            <div className="flex items-center justify-center gap-1 mb-1">
+                              <Shield size={14} className="text-latte-600" />
+                              <span className="text-latte-800 font-semibold text-sm">{lab.level}</span>
+                            </div>
+                            <p className="text-latte-600 text-xs">Niveau</p>
+                          </div>
+                        </div>
+                        
+                        {/* Bouton d'action */}
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-latte-500">
+                            Créé le {new Date(lab.createdAt).toLocaleDateString('fr-FR')}
+                          </div>
+                          <div className="flex items-center gap-2 text-latte-600 group-hover:text-latte-800 transition-colors">
+                            <span className="text-sm font-medium">
+                              {isCurrentLab ? 'Continuer' : 'Ouvrir'}
+                            </span>
+                            <div className="w-5 h-5 rounded-full bg-latte-100 flex items-center justify-center group-hover:bg-latte-200 transition-colors">
+                              <span className="text-xs">→</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

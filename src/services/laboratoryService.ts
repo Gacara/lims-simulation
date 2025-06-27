@@ -223,31 +223,55 @@ export class LaboratoryService {
    */
   static async getUserLaboratories(userId: string): Promise<Laboratory[]> {
     try {
-      const labsQuery = query(
+      console.log('=== getUserLaboratories START ===');
+      console.log('userId:', userId);
+      
+      // Approche 1: Chercher tous les laboratoires où l'utilisateur est propriétaire
+      const ownerQuery = query(
         collection(db, 'laboratories'),
-        where('members', 'array-contains-any', [{ userId }])
+        where('ownerId', '==', userId)
       );
-      const labsSnapshot = await getDocs(labsQuery);
+      console.log('Executing owner query...');
+      const ownerSnapshot = await getDocs(ownerQuery);
+      console.log('Owner query results:', ownerSnapshot.size, 'laboratories');
+
+      // Approche 2: Récupérer tous les laboratoires et filtrer côté client
+      // (temporaire - en production, on utiliserait une collection d'index)
+      const allLabsQuery = query(collection(db, 'laboratories'));
+      console.log('Executing all labs query...');
+      const allLabsSnapshot = await getDocs(allLabsQuery);
+      console.log('All labs query results:', allLabsSnapshot.size, 'laboratories');
 
       const laboratories: Laboratory[] = [];
-      for (const labDoc of labsSnapshot.docs) {
-        const data = labDoc.data();
-        // Vérifier si l'utilisateur est vraiment membre
-                 const isMember = data.members.some((member: LaboratoryMember) => member.userId === userId);
-        if (isMember) {
-          laboratories.push({
-            id: labDoc.id,
-            ...data,
-            members: data.members.map((member: LaboratoryMember & { joinedAt: any }) => ({
-              ...member,
-              joinedAt: member.joinedAt.toDate()
-            })),
-            createdAt: data.createdAt.toDate(),
-            updatedAt: data.updatedAt.toDate()
-          } as Laboratory);
+      
+      // Traiter tous les laboratoires et vérifier la membership
+                      for (const labDoc of allLabsSnapshot.docs) {
+          const data: any = labDoc.data();
+          console.log('Checking lab:', labDoc.id, 'members:', data.members?.length);
+          
+          // Vérifier si l'utilisateur est membre (propriétaire ou dans la liste des membres)
+          const isOwner = data.ownerId === userId;
+          const isMember = data.members?.some((member: any) => member.userId === userId);
+          
+          console.log('Lab', labDoc.id, '- isOwner:', isOwner, 'isMember:', isMember);
+          
+          if (isOwner || isMember) {
+            console.log('User is member of lab:', labDoc.id);
+            laboratories.push({
+              id: labDoc.id,
+              ...data,
+              members: data.members?.map((member: any) => ({
+                ...member,
+                joinedAt: member.joinedAt?.toDate ? member.joinedAt.toDate() : new Date()
+              })) || [],
+              createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : new Date(),
+              updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate() : new Date()
+            } as Laboratory);
+          }
         }
-      }
 
+      console.log('Final laboratories list:', laboratories.length);
+      console.log('=== getUserLaboratories END ===');
       return laboratories;
     } catch (error) {
       console.error('Error getting user laboratories:', error);

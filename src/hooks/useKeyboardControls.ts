@@ -17,11 +17,27 @@ const keyMap: { [key: string]: keyof import('../types').Controls } = {
   'Escape': 'menu',
 };
 
+// Fonction pour vérifier si l'élément actif est éditable
+function isEditableElement(element: Element | null): boolean {
+  if (!element) return false;
+  
+  const tagName = element.tagName.toLowerCase();
+  const isInput = tagName === 'input' || tagName === 'textarea';
+  const isContentEditable = element.getAttribute('contenteditable') === 'true';
+  
+  return isInput || isContentEditable;
+}
+
 export function useKeyboardControls() {
   const { updateControls } = useControlsStore();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Ignorer les contrôles si l'utilisateur tape dans un input
+      if (isEditableElement(document.activeElement)) {
+        return;
+      }
+      
       const control = keyMap[event.code];
       if (control) {
         event.preventDefault();
@@ -30,6 +46,11 @@ export function useKeyboardControls() {
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
+      // Ignorer les contrôles si l'utilisateur tape dans un input
+      if (isEditableElement(document.activeElement)) {
+        return;
+      }
+      
       const control = keyMap[event.code];
       if (control) {
         event.preventDefault();
@@ -39,7 +60,8 @@ export function useKeyboardControls() {
 
     // Prevent tab key from changing focus when used for inventory
     const handleKeyDownCapture = (event: KeyboardEvent) => {
-      if (event.code === 'Tab') {
+      // Ne pas intercepter Tab si on est dans un input
+      if (event.code === 'Tab' && !isEditableElement(document.activeElement)) {
         event.preventDefault();
       }
     };

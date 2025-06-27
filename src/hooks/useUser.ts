@@ -91,9 +91,6 @@ export function useUser(): UseUserReturn {
       
       console.log('User initialization completed successfully');
       
-      // L'utilisateur devra choisir un laboratoire via LaboratorySelector
-      // Plus de création automatique de laboratoire
-      
     } catch (err) {
       console.error('ERROR in initializeUser:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors de l\'initialisation utilisateur');
