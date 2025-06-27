@@ -8,7 +8,8 @@ import type {
   Sample, 
   UIState,
   Vector3D,
-  Controls 
+  Controls,
+  InventoryItem
 } from '../types';
 
 interface GameStore extends GameState {
@@ -28,6 +29,12 @@ interface GameStore extends GameState {
   
   // Sample actions
   setCurrentSample: (sample: Sample | undefined) => void;
+  
+  // Inventory actions
+  setInventory: (inventory: InventoryItem[]) => void;
+  addInventoryItem: (item: InventoryItem) => void;
+  removeInventoryItem: (itemId: string) => void;
+  updateInventoryItem: (itemId: string, updates: Partial<InventoryItem>) => void;
   
   // UI actions
   toggleLIMS: () => void;
@@ -113,6 +120,27 @@ export const useGameStore = create<GameStore>()(
     // Sample actions
     setCurrentSample: (sample) =>
       set({ currentSample: sample }),
+
+    // Inventory actions
+    setInventory: (inventory) =>
+      set({ inventory }),
+
+    addInventoryItem: (item) =>
+      set((state) => ({
+        inventory: [...state.inventory, item]
+      })),
+
+    removeInventoryItem: (itemId) =>
+      set((state) => ({
+        inventory: state.inventory.filter(item => item.id !== itemId)
+      })),
+
+    updateInventoryItem: (itemId, updates) =>
+      set((state) => ({
+        inventory: state.inventory.map(item =>
+          item.id === itemId ? { ...item, ...updates } : item
+        )
+      })),
 
     // UI actions
     toggleLIMS: () =>

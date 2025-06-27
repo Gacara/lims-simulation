@@ -1,12 +1,18 @@
 import { useGameStore } from '../../stores/gameStore';
+import { useUser } from '../../hooks/useUser';
 import { 
   Beaker, 
   Package, 
   Target, 
-  QrCode
+  QrCode,
+  User
 } from 'lucide-react';
 
-export function HUD() {
+interface HUDProps {
+  onOpenProfile: () => void;
+}
+
+export function HUD({ onOpenProfile }: HUDProps) {
   const { 
     toggleLIMS, 
     toggleInventory, 
@@ -15,16 +21,26 @@ export function HUD() {
     ui,
     player 
   } = useGameStore();
+  
+  const { userProfile } = useUser();
 
   return (
     <div className="absolute inset-0 pointer-events-none">
       {/* Top bar */}
       <div className="absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-auto">
         {/* Player info */}
-        <div className="bg-sand-100/90 backdrop-blur-sm text-latte-800 px-4 py-2 rounded-lg shadow-lg border border-sand-200">
-          <div className="text-sm font-medium">Dr. Scientist</div>
-          <div className="text-xs text-latte-600">Level 1 • $5,000</div>
-        </div>
+        <button
+          onClick={onOpenProfile}
+          className="bg-sand-100/90 backdrop-blur-sm text-latte-800 px-4 py-2 rounded-lg shadow-lg border border-sand-200 hover:bg-sand-200/90 transition-colors text-left"
+        >
+          <div className="text-sm font-medium flex items-center gap-2">
+            <User size={16} />
+            {userProfile?.displayName || 'Utilisateur'}
+          </div>
+          <div className="text-xs text-latte-600">
+            Niveau {userProfile?.level || 1} • {userProfile?.budget?.toLocaleString('fr-FR') || '0'} €
+          </div>
+        </button>
 
         {/* Action buttons */}
         <div className="flex gap-2">

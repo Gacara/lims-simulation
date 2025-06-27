@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { useGameStore } from '../../stores/gameStore';
 import { LIMSInterface } from './LIMSInterface';
 import { MissionPanel } from './MissionPanel';
@@ -5,14 +6,16 @@ import { InventoryPanel } from './InventoryPanel';
 import { QRScanner } from './QRScanner';
 import { NotificationPanel } from './NotificationPanel';
 import { HUD } from './HUD';
+import { UserProfile } from './UserProfile';
 
 export function GameUI() {
   const { ui } = useGameStore();
+  const [showUserProfile, setShowUserProfile] = useState(false);
 
   return (
     <>
       {/* Heads-Up Display */}
-      <HUD />
+      <HUD onOpenProfile={() => setShowUserProfile(true)} />
 
       {/* Notification Panel */}
       <NotificationPanel />
@@ -28,6 +31,12 @@ export function GameUI() {
 
       {/* QR Code Scanner */}
       {ui.showQRScanner && <QRScanner />}
+
+      {/* User Profile */}
+      <UserProfile 
+        isOpen={showUserProfile} 
+        onClose={() => setShowUserProfile(false)} 
+      />
     </>
   );
 }

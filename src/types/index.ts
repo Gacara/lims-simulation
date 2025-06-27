@@ -4,7 +4,8 @@ export interface User {
   id: string;
   email: string;
   displayName: string;
-  laboratoryId: string;
+  currentLaboratoryId: string;
+  memberLaboratories: string[];
   createdAt: Date;
   lastLogin: Date;
   level: number;
@@ -14,13 +15,46 @@ export interface User {
 
 export interface Laboratory {
   id: string;
-  ownerId: string;
   name: string;
+  description: string;
+  ownerId: string;
+  members: LaboratoryMember[];
   level: number;
   layout: LabLayout;
   equipment: Equipment[];
+  isPublic: boolean;
+  inviteCode?: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface LaboratoryMember {
+  userId: string;
+  displayName: string;
+  email: string;
+  role: 'owner' | 'admin' | 'member';
+  joinedAt: Date;
+  permissions: LaboratoryPermissions;
+}
+
+export interface LaboratoryPermissions {
+  canManageMembers: boolean;
+  canManageEquipment: boolean;
+  canManageMissions: boolean;
+  canManageSamples: boolean;
+  canModifyLayout: boolean;
+}
+
+export interface LaboratoryInvitation {
+  id: string;
+  laboratoryId: string;
+  inviteCode: string;
+  createdBy: string;
+  createdAt: Date;
+  expiresAt: Date;
+  maxUses?: number;
+  currentUses: number;
+  isActive: boolean;
 }
 
 export interface LabLayout {
@@ -114,6 +148,7 @@ export interface Sample {
   origin: string;
   collectedAt: Date;
   submittedBy: string;
+  laboratoryId: string;
   status: SampleStatus;
   preparationSteps: PreparationStep[];
   analyses: Analysis[];
@@ -195,6 +230,8 @@ export interface Mission {
   status: MissionStatus;
   requiredEquipment: EquipmentType[];
   sampleProvided: Sample;
+  laboratoryId: string;
+  assignedTo?: string;
   createdAt: Date;
   acceptedAt?: Date;
   completedAt?: Date;
