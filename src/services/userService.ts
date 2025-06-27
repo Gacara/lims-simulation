@@ -65,12 +65,20 @@ export class UserService {
     additionalData?: Partial<UserProfile>
   ): Promise<UserProfile> {
     try {
+      console.log('=== UserService.createOrUpdateUserProfile START ===');
+      console.log('firebaseUser.uid:', firebaseUser.uid);
+      
       const userRef = doc(db, 'users', firebaseUser.uid);
+      console.log('userRef created:', userRef.path);
+      
+      console.log('Checking if user document exists...');
       const userSnap = await getDoc(userRef);
+      console.log('getDoc completed, exists:', userSnap.exists());
       
       const now = new Date();
       
       if (!userSnap.exists()) {
+        console.log('User does not exist, creating new profile...');
         // Créer un nouveau profil utilisateur
         const newProfile: UserProfile = {
           id: firebaseUser.uid,
@@ -99,29 +107,42 @@ export class UserService {
           ...additionalData
         };
         
+        console.log('New profile data:', newProfile);
+        console.log('Setting document...');
+        
         await setDoc(userRef, {
           ...newProfile,
           createdAt: Timestamp.fromDate(newProfile.createdAt),
           lastLogin: Timestamp.fromDate(newProfile.lastLogin)
         });
         
+        console.log('Document created successfully');
+        console.log('=== UserService.createOrUpdateUserProfile END (NEW USER) ===');
         return newProfile;
       } else {
+        console.log('User exists, updating last login...');
         // Mettre à jour la dernière connexion
         await updateDoc(userRef, {
           lastLogin: serverTimestamp()
         });
         
         const userData = userSnap.data();
-        return {
+        const profile = {
           id: userSnap.id,
           ...userData,
           createdAt: userData.createdAt.toDate(),
           lastLogin: now
         } as UserProfile;
+        
+        console.log('Existing profile:', profile);
+        console.log('=== UserService.createOrUpdateUserProfile END (EXISTING USER) ===');
+        return profile;
       }
     } catch (error) {
-      console.error('Error creating/updating user profile:', error);
+      console.error('=== ERROR in UserService.createOrUpdateUserProfile ===');
+      console.error('Error details:', error);
+      console.error('Error message:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
       throw error;
     }
   }

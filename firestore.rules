@@ -12,53 +12,41 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
     
-    // Règles pour les laboratoires
+    // Règles pour les laboratoires - permissions simplifiées pour démarrer
     match /laboratories/{laboratoryId} {
-      allow read: if request.auth != null && 
-        (request.auth.uid == resource.data.ownerId ||
-         request.auth.uid in resource.data.members[*].userId);
-      allow write: if request.auth != null && 
-        (request.auth.uid == resource.data.ownerId || 
-         request.auth.uid == request.resource.data.ownerId);
+      allow read, write: if request.auth != null;
     }
     
-    // Règles pour les échantillons (scopés par laboratoire)
+    // Règles pour les échantillons - permissions simplifiées
     match /samples/{sampleId} {
-      allow read, write: if request.auth != null &&
-        exists(/databases/$(database)/documents/laboratories/$(resource.data.laboratoryId)) &&
-        (request.auth.uid in get(/databases/$(database)/documents/laboratories/$(resource.data.laboratoryId)).data.members[*].userId);
+      allow read, write: if request.auth != null;
     }
     
-    // Règles pour les missions (scopées par laboratoire)
+    // Règles pour les missions - permissions simplifiées
     match /missions/{missionId} {
-      allow read, write: if request.auth != null &&
-        exists(/databases/$(database)/documents/laboratories/$(resource.data.laboratoryId)) &&
-        (request.auth.uid in get(/databases/$(database)/documents/laboratories/$(resource.data.laboratoryId)).data.members[*].userId);
+      allow read, write: if request.auth != null;
     }
     
     // Règles pour les analyses
     match /analyses/{analysisId} {
       allow read, write: if request.auth != null;
-      // Les analyses peuvent être gérées par tout utilisateur authentifié
     }
     
     // Règles pour les équipements
     match /equipment/{equipmentId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null;
-      // Les équipements peuvent être consultés par tous, modifiés par les propriétaires
+      allow read, write: if request.auth != null;
     }
     
-    // Règles pour les achievements (optionnel - si on veut les stocker dans Firestore)
+    // Règles pour les achievements
     match /achievements/{achievementId} {
       allow read: if request.auth != null;
-      allow write: if false; // Les achievements sont en lecture seule côté client
+      allow write: if false;
     }
     
     // Règles pour les classements/leaderboards
     match /leaderboards/{leaderboardId} {
       allow read: if request.auth != null;
-      allow write: if false; // Les classements sont calculés côté serveur
+      allow write: if false;
     }
   }
 }

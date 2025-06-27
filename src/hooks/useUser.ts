@@ -74,17 +74,28 @@ export function useUser(): UseUserReturn {
     if (!firebaseUser) return;
     
     try {
+      console.log('=== INITIALIZING USER ===');
+      console.log('firebaseUser:', firebaseUser);
+      console.log('firebaseUser.uid:', firebaseUser.uid);
+      console.log('firebaseUser.email:', firebaseUser.email);
+      console.log('firebaseUser.displayName:', firebaseUser.displayName);
+      
       setLoading(true);
       setError(null);
       
+      console.log('Calling UserService.createOrUpdateUserProfile...');
       // Créer ou mettre à jour le profil utilisateur
       const profile = await UserService.createOrUpdateUserProfile(firebaseUser);
+      console.log('Profile created/updated:', profile);
       setUserProfile(profile);
+      
+      console.log('User initialization completed successfully');
       
       // L'utilisateur devra choisir un laboratoire via LaboratorySelector
       // Plus de création automatique de laboratoire
       
     } catch (err) {
+      console.error('ERROR in initializeUser:', err);
       setError(err instanceof Error ? err.message : 'Erreur lors de l\'initialisation utilisateur');
     } finally {
       setLoading(false);

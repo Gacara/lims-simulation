@@ -30,19 +30,37 @@ function App() {
   // Test Firebase connection
   const { isConnected, projectInfo, connectionError } = useFirebaseConnection();
 
+  // State to control showing the lab selector or the game
+  const [showLaboratorySelector, setShowLaboratorySelector] = React.useState(true);
+
+  // Debug logs
+  console.log('=== APP RENDER DEBUG ===');
+  console.log('showLaboratorySelector:', showLaboratorySelector);
+  console.log('currentLaboratory:', currentLaboratory);
+  console.log('userProfile:', userProfile);
+  console.log('user:', user);
+  console.log('authLoading:', authLoading);
+  console.log('userLoading:', userLoading);
+  console.log('isMobile:', isMobile);
+  console.log('========================');
+
   // Handle laboratory selection
   const handleLaboratorySelected = async (laboratory: Laboratory) => {
     if (!userProfile) return;
     
     try {
       // Set as current laboratory
-             await UserService.setCurrentLaboratory(userProfile.id, laboratory.id);
+      await UserService.setCurrentLaboratory(userProfile.id, laboratory.id);
       setCurrentLaboratory(laboratory);
       
       // Add to user's laboratory list if not already there
       if (!userProfile.memberLaboratories.includes(laboratory.id)) {
-                 await UserService.addUserToLaboratory(userProfile.id, laboratory.id);
+        await UserService.addUserToLaboratory(userProfile.id, laboratory.id);
       }
+      
+      // Hide laboratory selector and show the game
+      console.log('Setting showLaboratorySelector to false');
+      setShowLaboratorySelector(false);
       
       addNotification({
         type: 'success',
@@ -59,8 +77,15 @@ function App() {
     }
   };
 
+  // Handle back to laboratory selector
+  const handleBackToLaboratorySelector = () => {
+    console.log('handleBackToLaboratorySelector called - setting showLaboratorySelector to true');
+    setShowLaboratorySelector(true);
+  };
+
   // Show loading screen while checking authentication and user data
   if (authLoading || (user && userLoading)) {
+    console.log('RENDERING: Loading screen');
     return (
       <div className="min-h-screen bg-elegant-gradient flex items-center justify-center">
         <div className="text-latte-800 text-center">
@@ -75,26 +100,50 @@ function App() {
 
   // Show authentication screen if not logged in
   if (!user) {
+    console.log('RENDERING: AuthScreen');
     return <AuthScreen />;
   }
 
-  // Show laboratory selector if user hasn't selected a laboratory yet
-  if (userProfile && !currentLaboratory) {
-    return <LaboratorySelector onLaboratorySelected={handleLaboratorySelected} />;
+  // Show loading screen if user profile is not loaded yet
+  if (user && !userProfile) {
+    console.log('RENDERING: Loading screen (waiting for userProfile)');
+    return (
+      <div className="min-h-screen bg-elegant-gradient flex items-center justify-center">
+        <div className="text-latte-800 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-latte-600 mx-auto mb-4"></div>
+          <p className="font-medium">Chargement du profil utilisateur...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show laboratory selector if user hasn't selected a laboratory yet or wants to change
+  if (userProfile && showLaboratorySelector) {
+    console.log('RENDERING: LaboratorySelector (condition: showLaboratorySelector =', showLaboratorySelector, ')');
+    console.log('userProfile exists:', !!userProfile);
+    return (
+      <LaboratorySelector 
+        onLaboratorySelected={handleLaboratorySelected}
+        currentLaboratory={currentLaboratory}
+      />
+    );
   }
 
   // Show mobile interface on mobile devices
   if (isMobile) {
+    console.log('RENDERING: MobileApp');
     return <MobileApp />;
   }
 
   // Show desktop interface
+  console.log('RENDERING: DesktopApp');
   return <DesktopApp 
     isConnected={isConnected} 
     projectInfo={projectInfo} 
     connectionError={connectionError} 
     addNotification={addNotification}
     userProfile={userProfile}
+    onBackToLaboratorySelector={handleBackToLaboratorySelector}
   />;
 }
 
@@ -104,13 +153,15 @@ function DesktopApp({
   projectInfo, 
   connectionError, 
   addNotification,
-  userProfile
+  userProfile,
+  onBackToLaboratorySelector
 }: {
   isConnected: boolean | null;
   projectInfo: { projectId?: string } | null;
   connectionError: string | null;
   addNotification: (notification: Omit<GameNotification, 'id' | 'timestamp' | 'read'>) => void;
   userProfile: UserProfile | null;
+  onBackToLaboratorySelector: () => void;
 }) {
 
   useEffect(() => {
@@ -156,6 +207,21 @@ function DesktopApp({
            isConnected === false ? '❌ Firebase Disconnected' : 
            '⏳ Connecting to Firebase...'}
         </div>
+      </div>
+      
+      {/* Back to Laboratory Selector Button */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-auto">
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Changer de laboratoire clicked!');
+            onBackToLaboratorySelector();
+          }}
+          className="px-4 py-2 bg-latte-700 text-sand-50 rounded-lg hover:bg-latte-800 font-medium transition-colors shadow-lg border border-latte-600 cursor-pointer"
+        >
+          Changer de Laboratoire
+        </button>
       </div>
       
       {/* 3D Scene */}

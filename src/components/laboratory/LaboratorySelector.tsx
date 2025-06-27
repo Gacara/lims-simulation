@@ -10,15 +10,17 @@ import {
   X,
   Building2,
   UserPlus,
-  Shield
+  Shield,
+  Play
 } from 'lucide-react';
 import type { Laboratory } from '../../types';
 
 interface LaboratorySelectorProps {
   onLaboratorySelected: (laboratory: Laboratory) => void;
+  currentLaboratory?: Laboratory | null;
 }
 
-export function LaboratorySelector({ onLaboratorySelected }: LaboratorySelectorProps) {
+export function LaboratorySelector({ onLaboratorySelected, currentLaboratory }: LaboratorySelectorProps) {
   const { userProfile } = useUser();
   const [laboratories, setLaboratories] = useState<Laboratory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -138,9 +140,12 @@ export function LaboratorySelector({ onLaboratorySelected }: LaboratorySelectorP
       <div className="bg-sand-50 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="bg-latte-700 text-sand-50 p-6">
-          <h2 className="text-2xl font-bold mb-2">Choisir un Laboratoire</h2>
+          <h1 className="text-3xl font-bold mb-2">Bienvenue dans LIMS Simulation</h1>
           <p className="text-sand-200">
-            Sélectionnez un laboratoire existant ou créez-en un nouveau
+            {currentLaboratory 
+              ? `Laboratoire actuel : ${currentLaboratory.name} • Choisissez un autre laboratoire ou continuez`
+              : 'Sélectionnez un laboratoire pour commencer votre simulation'
+            }
           </p>
         </div>
 
@@ -153,6 +158,19 @@ export function LaboratorySelector({ onLaboratorySelected }: LaboratorySelectorP
               className="ml-2 text-red-500 hover:text-red-700"
             >
               <X size={16} />
+            </button>
+          </div>
+        )}
+
+        {/* Continue with current lab button */}
+        {currentLaboratory && (
+          <div className="p-6 border-b border-sand-200 bg-latte-50">
+            <button
+              onClick={() => onLaboratorySelected(currentLaboratory)}
+              className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-latte-700 text-sand-50 rounded-lg hover:bg-latte-800 font-medium text-lg transition-colors"
+            >
+              <Play size={24} />
+              Continuer avec {currentLaboratory.name}
             </button>
           </div>
         )}
@@ -190,59 +208,65 @@ export function LaboratorySelector({ onLaboratorySelected }: LaboratorySelectorP
               </p>
             </div>
           ) : (
-            <div className="grid gap-4">
-              {laboratories.map((lab) => {
-                const userMember = lab.members.find(m => m.userId === userProfile?.id);
-                return (
-                  <div
-                    key={lab.id}
-                    className="bg-sand-100/50 rounded-lg p-4 border border-sand-200 hover:border-latte-300 transition-colors"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-semibold text-latte-800">{lab.name}</h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(userMember?.role || 'member')}`}>
-                            {userMember?.role === 'owner' ? 'Propriétaire' : 
-                             userMember?.role === 'admin' ? 'Admin' : 'Membre'}
-                          </span>
-                        </div>
-                        <p className="text-latte-600 text-sm mb-3">{lab.description}</p>
-                        <div className="flex items-center gap-4 text-sm text-latte-600">
-                          <div className="flex items-center gap-1">
-                            <Users size={16} />
-                            <span>{lab.members.length} membre{lab.members.length > 1 ? 's' : ''}</span>
+            <div className="space-y-2">
+              <h3 className="text-lg font-medium text-latte-800 mb-4">
+                Vos Laboratoires ({laboratories.length})
+              </h3>
+              <div className="grid gap-4">
+                {laboratories.map((lab) => {
+                  const userMember = lab.members.find(m => m.userId === userProfile?.id);
+                  const isCurrentLab = currentLaboratory?.id === lab.id;
+                  return (
+                    <div
+                      key={lab.id}
+                      className={`bg-sand-100/50 rounded-lg p-4 border transition-all cursor-pointer hover:shadow-md ${
+                        isCurrentLab 
+                          ? 'border-latte-400 ring-2 ring-latte-200 bg-latte-50' 
+                          : 'border-sand-200 hover:border-latte-300'
+                      }`}
+                      onClick={() => onLaboratorySelected(lab)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="font-semibold text-latte-800">{lab.name}</h3>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(userMember?.role || 'member')}`}>
+                              {userMember?.role === 'owner' ? 'Propriétaire' : 
+                               userMember?.role === 'admin' ? 'Admin' : 'Membre'}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <Shield size={16} />
-                            <span>Niveau {lab.level}</span>
+                          <p className="text-latte-600 text-sm mb-3">{lab.description}</p>
+                          <div className="flex items-center gap-4 text-sm text-latte-600">
+                            <div className="flex items-center gap-1">
+                              <Users size={16} />
+                              <span>{lab.members.length} membre{lab.members.length > 1 ? 's' : ''}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Shield size={16} />
+                              <span>Niveau {lab.level}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {(userMember?.role === 'owner' || userMember?.permissions.canManageMembers) && (
-                          <button
-                            onClick={() => {
-                              setSelectedLab(lab);
-                              setShowInviteModal(true);
-                            }}
-                            className="p-2 text-latte-600 hover:text-latte-800 hover:bg-sand-200/50 rounded-lg transition-colors"
-                            title="Gérer les invitations"
-                          >
-                            <Settings size={16} />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => onLaboratorySelected(lab)}
-                          className="px-4 py-2 bg-latte-700 text-sand-50 rounded-lg hover:bg-latte-800 font-medium"
-                        >
-                          Sélectionner
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {(userMember?.role === 'owner' || userMember?.permissions.canManageMembers) && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedLab(lab);
+                                setShowInviteModal(true);
+                              }}
+                              className="p-2 text-latte-600 hover:text-latte-800 hover:bg-sand-200/50 rounded-lg transition-colors"
+                              title="Gérer les invitations"
+                            >
+                              <Settings size={16} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>
