@@ -41,18 +41,20 @@ export function Scene() {
     <div className="w-full h-full">
       <Canvas
         camera={{
-          position: [0, 15, 25],
-          fov: 60,
+          position: [10, 12, 15],
+          fov: 75,
+          near: 0.1,
+          far: 200,
         }}
         shadows
         gl={{ preserveDrawingBuffer: true }}
       >
         <Suspense fallback={<SceneLoading />}>
           {/* Lighting setup */}
-          <ambientLight intensity={0.3} />
+          <ambientLight intensity={0.4} />
           <directionalLight
             position={[15, 15, 10]}
-            intensity={1}
+            intensity={1.2}
             castShadow
             shadow-mapSize-width={2048}
             shadow-mapSize-height={2048}
@@ -89,10 +91,16 @@ export function Scene() {
             enablePan={true}
             enableZoom={true}
             enableRotate={true}
-            minDistance={8}
-            maxDistance={50}
-            maxPolarAngle={Math.PI / 2.2}
+            minDistance={5}
+            maxDistance={40}
+            maxPolarAngle={Math.PI / 2.1}
+            minPolarAngle={Math.PI / 6}
             target={[0, 0, 0]}
+            enableDamping={true}
+            dampingFactor={0.05}
+            rotateSpeed={0.8}
+            panSpeed={0.8}
+            zoomSpeed={1.2}
           />
         </Suspense>
       </Canvas>

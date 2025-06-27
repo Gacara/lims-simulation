@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
 import { useGameStore, useControlsStore } from '../../stores/gameStore';
 import * as THREE from 'three';
 
@@ -11,9 +11,12 @@ export function Player({ position = [0, 0.5, 0] }: PlayerProps) {
   const meshRef = useRef<THREE.Mesh>(null);
   const { controls } = useControlsStore();
   const { updatePlayerPosition, updatePlayerRotation, setPlayerMoving } = useGameStore();
+  const { camera } = useThree();
   
   const velocity = useRef(new THREE.Vector3());
   const direction = useRef(new THREE.Vector3());
+  const cameraDirection = useRef(new THREE.Vector3());
+  const cameraRight = useRef(new THREE.Vector3());
   const moveSpeed = 5.0;
   const rotationSpeed = 0.1;
 
@@ -23,23 +26,32 @@ export function Player({ position = [0, 0.5, 0] }: PlayerProps) {
     // Reset movement state
     let isMoving = false;
     
-    // Calculate movement direction
+    // Get camera's forward and right vectors (on the XZ plane)
+    camera.getWorldDirection(cameraDirection.current);
+    cameraDirection.current.y = 0; // Keep movement on the ground plane
+    cameraDirection.current.normalize();
+    
+    // Calculate right vector from camera forward vector
+    cameraRight.current.crossVectors(cameraDirection.current, new THREE.Vector3(0, 1, 0));
+    cameraRight.current.normalize();
+    
+    // Calculate movement direction relative to camera
     direction.current.set(0, 0, 0);
     
     if (controls.forward) {
-      direction.current.z -= 1;
+      direction.current.add(cameraDirection.current);
       isMoving = true;
     }
     if (controls.backward) {
-      direction.current.z += 1;
+      direction.current.sub(cameraDirection.current);
       isMoving = true;
     }
     if (controls.left) {
-      direction.current.x -= 1;
+      direction.current.sub(cameraRight.current);
       isMoving = true;
     }
     if (controls.right) {
-      direction.current.x += 1;
+      direction.current.add(cameraRight.current);
       isMoving = true;
     }
 
@@ -84,12 +96,6 @@ export function Player({ position = [0, 0.5, 0] }: PlayerProps) {
       );
     }
   });
-
-  useEffect(() => {
-    if (meshRef.current) {
-      meshRef.current.position.set(...position);
-    }
-  }, [position]);
 
   return (
     <group>
