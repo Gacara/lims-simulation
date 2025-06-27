@@ -15,6 +15,7 @@ interface UseUserReturn {
   loadGameData: () => Promise<void>;
   updateStatistics: (stats: Partial<UserProfile['statistics']>) => Promise<void>;
   addExperience: (amount: number) => Promise<void>;
+  saveOnAction: (actionName: string) => Promise<void>;
   
   // État
   isDataSaved: boolean;
@@ -40,15 +41,34 @@ export function useUser(): UseUserReturn {
     }
   }, [isAuthenticated, firebaseUser]);
   
-  // Sauvegarde automatique des données de jeu
+  // Sauvegarde automatique intelligente - se déclenche lors des changements importants
+  useEffect(() => {
+    if (userProfile && isAuthenticated) {
+      // Délai de 1 seconde après le changement pour éviter les sauvegardes trop fréquentes
+      const saveTimeout = setTimeout(() => {
+        saveGameData();
+      }, 1000);
+      
+      return () => clearTimeout(saveTimeout);
+    }
+  }, [
+    gameStore.currentLaboratory,
+    gameStore.activeMissions,
+    gameStore.inventory,
+    gameStore.currentSample,
+    userProfile?.budget,
+    userProfile?.level,
+    userProfile?.experience
+  ]);
+  
+  // Sauvegarde automatique périodique toutes les 5 minutes
   useEffect(() => {
     let saveInterval: NodeJS.Timeout;
     
     if (userProfile?.preferences.autoSave && isAuthenticated) {
-      // Sauvegarder toutes les 2 minutes
       saveInterval = setInterval(() => {
         saveGameData();
-      }, 120000);
+      }, 300000); // 5 minutes
     }
     
     return () => {
@@ -118,17 +138,20 @@ export function useUser(): UseUserReturn {
     try {
       setError(null);
       
+      // Filtrer les valeurs undefined pour éviter les erreurs Firebase
+      const cleanGameState = {
+        player: gameStore.player,
+        inventory: gameStore.inventory,
+        ui: gameStore.ui,
+        ...(gameStore.currentSample && { currentSample: gameStore.currentSample })
+      };
+      
       const gameData: Omit<UserGameData, 'userId' | 'lastSaved'> = {
         laboratory: gameStore.currentLaboratory,
         missions: gameStore.activeMissions,
         samples: [], // Sera chargé depuis la base de données
         equipment: gameStore.currentLaboratory?.equipment || [],
-        gameState: {
-          player: gameStore.player,
-          inventory: gameStore.inventory,
-          currentSample: gameStore.currentSample,
-          ui: gameStore.ui
-        }
+        gameState: cleanGameState
       };
       
       await UserService.saveUserGameData(userProfile.id, gameData);
@@ -137,7 +160,8 @@ export function useUser(): UseUserReturn {
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde');
-      throw err;
+      console.error('Erreur lors de la sauvegarde automatique:', err);
+      // Ne pas throw l'erreur pour éviter d'interrompre le gameplay
     }
   };
   
@@ -249,6 +273,14 @@ export function useUser(): UseUserReturn {
     }
   };
   
+  // Fonction pour déclencher une sauvegarde immédiate lors d'actions importantes
+  const saveOnAction = async (actionName: string) => {
+    if (!userProfile) return;
+    
+    console.log(`🎮 Sauvegarde déclenchée par: ${actionName}`);
+    await saveGameData();
+  };
+  
   return {
     userProfile,
     loading,
@@ -258,6 +290,7 @@ export function useUser(): UseUserReturn {
     loadGameData,
     updateStatistics,
     addExperience,
+    saveOnAction,
     isDataSaved,
     lastSaveTime
   };

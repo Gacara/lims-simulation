@@ -5,8 +5,6 @@ import {
   Settings, 
   Trophy, 
   Clock, 
-  Save, 
-  Download,
   Star,
   TrendingUp,
   Database,
@@ -24,9 +22,6 @@ export function UserProfile({ isOpen, onClose }: UserProfileProps) {
     loading, 
     error, 
     updateProfile,
-    saveGameData,
-    loadGameData,
-    isDataSaved,
     lastSaveTime
   } = useUser();
   
@@ -56,21 +51,7 @@ export function UserProfile({ isOpen, onClose }: UserProfileProps) {
     }
   };
 
-  const handleSaveGame = async () => {
-    try {
-      await saveGameData();
-    } catch (error) {
-      console.error('Erreur lors de la sauvegarde du jeu:', error);
-    }
-  };
 
-  const handleLoadGame = async () => {
-    try {
-      await loadGameData();
-    } catch (error) {
-      console.error('Erreur lors du chargement du jeu:', error);
-    }
-  };
 
   const formatPlayTime = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
@@ -225,14 +206,14 @@ export function UserProfile({ isOpen, onClose }: UserProfileProps) {
                 </div>
               </div>
 
-              {/* Sauvegarde */}
+              {/* Sauvegarde Automatique */}
               <div className="bg-sand-100/50 rounded-lg p-4">
-                <h3 className="font-semibold text-latte-800 mb-3">Sauvegarde</h3>
+                <h3 className="font-semibold text-latte-800 mb-3">Sauvegarde Automatique</h3>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-latte-600">État:</span>
-                    <span className={`font-medium ${isDataSaved ? 'text-green-600' : 'text-orange-600'}`}>
-                      {isDataSaved ? 'Sauvegardé' : 'Non sauvegardé'}
+                    <span className="font-medium text-green-600">
+                      Activée
                     </span>
                   </div>
                   {lastSaveTime && (
@@ -243,23 +224,15 @@ export function UserProfile({ isOpen, onClose }: UserProfileProps) {
                       </span>
                     </div>
                   )}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleSaveGame}
-                      disabled={loading}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
-                    >
-                      <Save size={16} />
-                      Sauvegarder
-                    </button>
-                    <button
-                      onClick={handleLoadGame}
-                      disabled={loading}
-                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium"
-                    >
-                      <Download size={16} />
-                      Charger
-                    </button>
+                  <div className="text-sm text-latte-600 bg-sand-50 p-3 rounded border-l-4 border-green-500">
+                    <p className="font-medium text-green-700 mb-1">💾 Sauvegarde intelligente</p>
+                    <p>Vos progrès sont automatiquement sauvegardés lors de vos interactions :</p>
+                    <ul className="mt-2 space-y-1 text-xs">
+                      <li>• Validation d'échantillons</li>
+                      <li>• Acceptation de missions</li>
+                      <li>• Achat de matériel</li>
+                      <li>• Changement de paramètres</li>
+                    </ul>
                   </div>
                 </div>
               </div>
